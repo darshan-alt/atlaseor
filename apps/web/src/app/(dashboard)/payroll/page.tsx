@@ -22,6 +22,11 @@ export default function PayrollPage() {
     const [preview, setPreview] = useState<PayrollPreview | null>(null);
     const [isSummarizing, setIsSummarizing] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handlePreview = async () => {
         setIsSummarizing(true);
@@ -70,6 +75,11 @@ export default function PayrollPage() {
         }
     }, [viewingPast]);
 
+    if (!mounted) return <div className="animate-pulse space-y-6">
+        <div className="h-10 w-1/4 bg-slate-800 rounded"></div>
+        <div className="h-20 w-full bg-slate-800 rounded"></div>
+    </div>;
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -95,8 +105,8 @@ export default function PayrollPage() {
                                 onChange={(e) => setMonth(Number(e.target.value))}
                                 className="w-40 bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2 text-white outline-none"
                             >
-                                {Array.from({ length: 12 }, (_, i) => (
-                                    <option key={i + 1} value={i + 1}>{new Date(2000, i).toLocaleString('default', { month: 'long' })}</option>
+                                {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((m, i) => (
+                                    <option key={i + 1} value={i + 1}>{m}</option>
                                 ))}
                             </select>
                         </div>
@@ -213,9 +223,11 @@ export default function PayrollPage() {
                                     pastRuns.map((run) => (
                                         <tr key={run.id} className="hover:bg-slate-800/30 transition-colors">
                                             <td className="px-6 py-4">
-                                                <div className="font-medium text-white">{new Date(2000, run.month - 1).toLocaleString('default', { month: 'long' })} {run.year}</div>
+                                                <div className="font-medium text-white">
+                                                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][run.month - 1]} {run.year}
+                                                </div>
                                             </td>
-                                            <td className="px-6 py-4 text-slate-400 text-xs">
+                                            <td className="px-6 py-4 text-slate-400 text-xs" suppressHydrationWarning>
                                                 {new Date(run.createdAt).toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4">{run._count?.items || 0}</td>

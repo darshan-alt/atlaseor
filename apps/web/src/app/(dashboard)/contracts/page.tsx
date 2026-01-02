@@ -66,13 +66,13 @@ export default function ContractsPage() {
                                             <p className="text-sm text-slate-400">{contract.offer?.jobTitle} • {contract.offer?.country}</p>
                                         </div>
                                         <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${contract.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                'bg-amber-500/10 text-amber-500'
+                                            'bg-amber-500/10 text-amber-500'
                                             }`}>
                                             {contract.status}
                                         </span>
                                     </div>
                                     <div className="mt-4 flex items-center space-x-4 text-xs text-slate-500">
-                                        <span>Generated: {new Date(contract.createdAt).toLocaleDateString()}</span>
+                                        <span dangerouslySetInnerHTML={{ __html: `Generated: ${new Date(contract.createdAt).toLocaleDateString()}` }} suppressHydrationWarning />
                                         <span>•</span>
                                         <span>ID: {contract.id.slice(0, 8)}</span>
                                     </div>
