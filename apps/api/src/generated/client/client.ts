@@ -59,3 +59,8 @@ export type User = Prisma.UserModel
  * 
  */
 export type Employee = Prisma.EmployeeModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
