@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../../../../node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Role {
+  SUPER_ADMIN
+  COMPANY_OWNER
+  HR_ADMIN
+  PAYROLL_ADMIN
+  FINANCE_ADMIN
+  MANAGER
+  EMPLOYEE
+  AUDITOR
+}
+
+enum CountryCode {
+  IN
+  US
+}
+
+enum EmployeeStatus {
+  ONBOARDING
+  ACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+// Models
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  legalName   String?
+  hqCountry   CountryCode
+  taxId       String? // EIN or PAN
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  users       User[]
+  employees   Employee[]
+
+  @@map("companies")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  passwordHash String
+  firstName   String
+  lastName    String
+  role        Role     @default(EMPLOYEE)
+  
+  companyId   String?
+  company     Company? @relation(fields: [companyId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Employee {
+  id          String   @id @default(uuid())
+  firstName   String
+  lastName    String
+  email       String   @unique
+  workEmail   String?
+  dateOfJoin  DateTime?
+  status      EmployeeStatus @default(ONBOARDING)
+  
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id])
+  
+  country     CountryCode
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("employees")
+}
+
