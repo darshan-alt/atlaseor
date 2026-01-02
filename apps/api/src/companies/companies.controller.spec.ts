@@ -1,10 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CompaniesController } from './companies.controller';
 import { CompaniesService } from './companies.service';
+import { Role } from '../generated/client';
 
 describe('CompaniesController', () => {
   let controller: CompaniesController;
   let service: CompaniesService;
+
+  const mockUser = { id: 'user-123', role: Role.SUPER_ADMIN };
 
   const mockCompaniesService = {
     create: jest.fn(),
@@ -54,9 +57,9 @@ describe('CompaniesController', () => {
 
       mockCompaniesService.create.mockResolvedValue(mockResult);
 
-      const result = await controller.create(dto);
+      const result = await controller.create(dto, mockUser);
 
-      expect(service.create).toHaveBeenCalledWith(dto);
+      expect(service.create).toHaveBeenCalledWith(dto, mockUser);
       expect(result).toEqual(mockResult);
     });
   });
@@ -78,7 +81,7 @@ describe('CompaniesController', () => {
       const mockCompany = { id: '123', name: 'Test Company' };
       mockCompaniesService.findOne.mockResolvedValue(mockCompany);
 
-      const result = await controller.findOne('123');
+      const result = await controller.findOne('123', mockUser);
 
       expect(service.findOne).toHaveBeenCalledWith('123');
       expect(result).toEqual(mockCompany);
@@ -91,9 +94,9 @@ describe('CompaniesController', () => {
       const mockUpdated = { id: '123', name: 'Updated Name' };
       mockCompaniesService.update.mockResolvedValue(mockUpdated);
 
-      const result = await controller.update('123', updateDto);
+      const result = await controller.update('123', updateDto, mockUser);
 
-      expect(service.update).toHaveBeenCalledWith('123', updateDto);
+      expect(service.update).toHaveBeenCalledWith('123', updateDto, mockUser);
       expect(result).toEqual(mockUpdated);
     });
   });
@@ -103,9 +106,9 @@ describe('CompaniesController', () => {
       const mockDeleted = { id: '123', name: 'Deleted Company' };
       mockCompaniesService.remove.mockResolvedValue(mockDeleted);
 
-      const result = await controller.remove('123');
+      const result = await controller.remove('123', mockUser);
 
-      expect(service.remove).toHaveBeenCalledWith('123');
+      expect(service.remove).toHaveBeenCalledWith('123', mockUser);
       expect(result).toEqual(mockDeleted);
     });
   });

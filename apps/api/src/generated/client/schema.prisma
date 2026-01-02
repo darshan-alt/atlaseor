@@ -49,6 +49,8 @@ model Company {
   users     User[]
   employees Employee[]
   payrolls  Payroll[]
+  offers    Offer[]
+  contracts Contract[]
 
   @@map("companies")
 }
@@ -85,9 +87,16 @@ model Employee {
   country    CountryCode
   baseSalary Float       @default(0)
 
+  // Manager relationship
+  managerId     String?
+  manager       Employee?  @relation("ManagerToEmployee", fields: [managerId], references: [id])
+  directReports Employee[] @relation("ManagerToEmployee")
+
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   payrollItems PayrollItem[]
+  contract     Contract?
+  documents    Document[]
 
   @@map("employees")
 }
@@ -154,4 +163,87 @@ enum PayrollItemStatus {
   REVIEWED
   COMPLETED
   FAILED
+}
+
+model Offer {
+  id             String      @id @default(uuid())
+  companyId      String
+  company        Company     @relation(fields: [companyId], references: [id])
+  candidateName  String
+  candidateEmail String
+  jobTitle       String
+  country        CountryCode
+  salary         Float
+  status         OfferStatus @default(DRAFT)
+  validUntil     DateTime?
+  details        Json? // Pre-calculated salary breakdown
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  contract       Contract?
+
+  @@map("offers")
+}
+
+enum OfferStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+model Contract {
+  id         String    @id @default(uuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id])
+  offerId    String?   @unique
+  offer      Offer?    @relation(fields: [offerId], references: [id])
+  employeeId String?   @unique
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+
+  status     ContractStatus @default(DRAFT)
+  content    String? // Full contract text or template ID
+  legalTerms Json? // Specific terms (probation, notice period, etc.)
+
+  signedAt   DateTime?
+  validFrom  DateTime?
+  validUntil DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contracts")
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_SIGNATURE
+  ACTIVE
+  TERMINATED
+  CANCELLED
+}
+
+enum DocumentStatus {
+  PENDING
+  UPLOADED
+  VERIFIED
+  REJECTED
+}
+
+model Document {
+  id     String         @id @default(uuid())
+  name   String
+  type   String
+  url    String?
+  status DocumentStatus @default(PENDING)
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  meta Json? // For rejection reason or other details
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("documents")
 }

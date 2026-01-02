@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CompaniesService } from './companies.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../common/audit/audit.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 
 describe('CompaniesService', () => {
@@ -21,6 +22,10 @@ describe('CompaniesService', () => {
     },
   };
 
+  const mockAuditService = {
+    log: jest.fn().mockResolvedValue(true),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,6 +33,10 @@ describe('CompaniesService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: AuditService,
+          useValue: mockAuditService,
         },
       ],
     }).compile();
@@ -187,6 +196,7 @@ describe('CompaniesService', () => {
         where: { id: 'company-123' },
         data: updateDto,
       });
+      expect(mockAuditService.log).toHaveBeenCalled();
     });
   });
 

@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { Role } from '../generated/client';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,6 @@ export class AuthService {
     }
 
     async register(registerDto: RegisterDto, companyId: string) {
-        // Check if user already exists
         const existingUser = await this.prisma.user.findUnique({
             where: { email: registerDto.email },
         });
@@ -30,10 +30,8 @@ export class AuthService {
             throw new Error('User with this email already exists');
         }
 
-        // Hash password
         const passwordHash = await this.hashPassword(registerDto.password);
 
-        // Create user
         const user = await this.prisma.user.create({
             data: {
                 email: registerDto.email,
@@ -41,11 +39,10 @@ export class AuthService {
                 firstName: registerDto.firstName,
                 lastName: registerDto.lastName,
                 companyId,
-                role: 'EMPLOYEE', // Default role
+                role: 'EMPLOYEE',
             },
         });
 
-        // Generate JWT token
         const payload = {
             sub: user.id,
             email: user.email,
@@ -66,26 +63,23 @@ export class AuthService {
     }
 
     async login(loginDto: LoginDto) {
-        // Find user by email
         const user = await this.prisma.user.findUnique({
             where: { email: loginDto.email },
         });
 
         if (!user) {
-            throw new Error('Invalid credentials');
+            throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Validate password
         const isPasswordValid = await this.validatePassword(
             loginDto.password,
             user.passwordHash
         );
 
         if (!isPasswordValid) {
-            throw new Error('Invalid credentials');
+            throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Generate JWT token
         const payload = {
             sub: user.id,
             email: user.email,
@@ -101,6 +95,7 @@ export class AuthService {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: user.role,
+                companyId: user.companyId,
             },
         };
     }
@@ -116,6 +111,39 @@ export class AuthService {
                 role: true,
                 companyId: true,
             },
+        });
+    }
+
+    async findAll(where: any) {
+        return this.prisma.user.findMany({
+            where,
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+                companyId: true,
+            },
+        });
+    }
+
+    async updateRole(id: string, role: Role, currentUser: any) {
+        const userToUpdate = await this.prisma.user.findUnique({
+            where: { id },
+        });
+
+        if (!userToUpdate) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (currentUser.role !== Role.SUPER_ADMIN && userToUpdate.companyId !== currentUser.companyId) {
+            throw new ForbiddenException('Cannot update users from another company');
+        }
+
+        return this.prisma.user.update({
+            where: { id },
+            data: { role },
         });
     }
 }

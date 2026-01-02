@@ -154,6 +154,7 @@ exports.Prisma.EmployeeScalarFieldEnum = {
   companyId: 'companyId',
   country: 'country',
   baseSalary: 'baseSalary',
+  managerId: 'managerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -190,6 +191,48 @@ exports.Prisma.PayrollItemScalarFieldEnum = {
   totalContributions: 'totalContributions',
   details: 'details',
   status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OfferScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  candidateName: 'candidateName',
+  candidateEmail: 'candidateEmail',
+  jobTitle: 'jobTitle',
+  country: 'country',
+  salary: 'salary',
+  status: 'status',
+  validUntil: 'validUntil',
+  details: 'details',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ContractScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  offerId: 'offerId',
+  employeeId: 'employeeId',
+  status: 'status',
+  content: 'content',
+  legalTerms: 'legalTerms',
+  signedAt: 'signedAt',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DocumentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  url: 'url',
+  status: 'status',
+  employeeId: 'employeeId',
+  meta: 'meta',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -260,13 +303,39 @@ exports.PayrollItemStatus = exports.$Enums.PayrollItemStatus = {
   FAILED: 'FAILED'
 };
 
+exports.OfferStatus = exports.$Enums.OfferStatus = {
+  DRAFT: 'DRAFT',
+  SENT: 'SENT',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED'
+};
+
+exports.ContractStatus = exports.$Enums.ContractStatus = {
+  DRAFT: 'DRAFT',
+  PENDING_SIGNATURE: 'PENDING_SIGNATURE',
+  ACTIVE: 'ACTIVE',
+  TERMINATED: 'TERMINATED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.DocumentStatus = exports.$Enums.DocumentStatus = {
+  PENDING: 'PENDING',
+  UPLOADED: 'UPLOADED',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
+};
+
 exports.Prisma.ModelName = {
   Company: 'Company',
   User: 'User',
   Employee: 'Employee',
   AuditLog: 'AuditLog',
   Payroll: 'Payroll',
-  PayrollItem: 'PayrollItem'
+  PayrollItem: 'PayrollItem',
+  Offer: 'Offer',
+  Contract: 'Contract',
+  Document: 'Document'
 };
 
 /**

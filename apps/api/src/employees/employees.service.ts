@@ -32,6 +32,10 @@ export class EmployeesService {
     findAll(companyId: string) {
         return this.prisma.employee.findMany({
             where: { companyId },
+            include: {
+                manager: true,
+                directReports: true,
+            },
         });
     }
 

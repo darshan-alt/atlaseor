@@ -38,5 +38,9 @@ export class UpdateEmployeeDto {
 
     @IsString()
     @IsOptional()
-    status?: any; // We can use EmployeeStatus enum here
+    status?: any;
+
+    @IsString()
+    @IsOptional()
+    managerId?: string;
 }
